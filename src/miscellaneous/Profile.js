@@ -1,40 +1,48 @@
+import { ViewIcon } from "@chakra-ui/icons";
 import {
-  useDisclosure,
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalBody,
-  IconButton,
   ModalHeader,
-  ModalCloseButton,
   ModalFooter,
+  ModalBody,
+  ModalCloseButton,
   Button,
-  Image,
+  useDisclosure,
+  IconButton,
   Text,
+  Image,
 } from "@chakra-ui/react";
-import React from "react";
-import { ViewIcon } from "@chakra-ui/icons"; // Assuming you want this icon for some functionality
 
-const ProfileModel = ({ user, children }) => {
+const ProfileModal = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  console.log(user?.pic);
+
   return (
     <>
-      {React.cloneElement(children, { onClick: onOpen })}
-      <Modal onClose={onClose} size={"md"} isOpen={isOpen} isCentered>
+      {children ? (
+        <span onClick={onOpen}>{children}</span>
+      ) : (
+        <IconButton
+          d={{ base: "flex" }}
+          float={"right"}
+          icon={<ViewIcon />}
+          onClick={onOpen}
+        />
+      )}
+      <Modal size="lg" onClose={onClose} isOpen={isOpen} isCentered>
         <ModalOverlay />
-        <ModalContent height="410px">
+        <ModalContent h="410px">
           <ModalHeader
-            fontSize={"40px"}
-            fontFamily="work-sans"
-            display={"flex"}
-            justifyContent={"center"}
+            fontSize="40px"
+            fontFamily="Work sans"
+            d="flex"
+            justifyContent="center"
           >
-            {user?.name}
+            {user.name}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody
-            display="flex"
+            d="flex"
             flexDir="column"
             alignItems="center"
             justifyContent="space-between"
@@ -42,15 +50,18 @@ const ProfileModel = ({ user, children }) => {
             <Image
               borderRadius="full"
               boxSize="150px"
-              src={user?.pic}
-              alt={user?.name}
+              src={user.pic}
+              alt={user.name}
             />
-            <Text>{user?.email}</Text>
+            <Text
+              fontSize={{ base: "28px", md: "30px" }}
+              fontFamily="Work sans"
+            >
+              Email: {user.email}
+            </Text>
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" onClick={onClose}>
-              Close
-            </Button>
+            <Button onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -58,4 +69,4 @@ const ProfileModel = ({ user, children }) => {
   );
 };
 
-export default ProfileModel;
+export default ProfileModal;
