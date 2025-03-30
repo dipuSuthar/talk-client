@@ -47,10 +47,9 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:8000/api/user?search=${search}`,
+        `${process.env.REACT_APP_API_ENDPOINT}/api/user?search=${search}`,
         config
       );
-      console.log(data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -84,8 +83,6 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         },
         config
       );
-
-      console.log(data._id);
       // setSelectedChat("");
       setSelectedChat(data);
       setFetchAgain(!fetchAgain);
@@ -135,7 +132,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         },
       };
       const { data } = await axios.put(
-        `http://localhost:8000/api/chat/groupadd`,
+        `${process.env.REACT_APP_API_ENDPOINT}/api/chat/groupadd`,
         {
           chatId: selectedChat._id,
           userId: user1._id,

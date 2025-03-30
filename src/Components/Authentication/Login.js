@@ -22,7 +22,7 @@ const Login = () => {
         password: password,
       };
 
-      const path = "http://localhost:8000/api/user/login";
+      const path = `${process.env.REACT_APP_API_ENDPOINT}/api/user/login`;
 
       const headers = {
         "Content-Type": "application/json",
@@ -33,7 +33,6 @@ const Login = () => {
         localStorage.setItem("userInfo", JSON.stringify(response.data));
         window.location.href = "/chats";
       }
-      console.log(response.data);
     } catch (error) {
       // Handle errors here
       console.error("There was an error with the login request", error);
