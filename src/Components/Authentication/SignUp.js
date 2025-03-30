@@ -31,31 +31,28 @@ const SignUp = () => {
   const Registration = async () => {
     try {
       setloading(true);
-      const form = {
-        name: Name,
-        email: Email,
-        password: password,
-        pic: pic,
-      };
-      const url = "http://localhost:8000/api/user/register";
-      const response = await axios.post(url, form, {
+      const formData = new FormData();
+      formData.append("name", Name);
+      formData.append("email", Email);
+      formData.append("password", password);
+      formData.append("pic", pic); // Ensure 'pic' is a File object
+
+      const url = `${process.env.REACT_APP_API_ENDPOINT}/api/user/register`;
+      const response = await axios.post(url, formData, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
         timeout: 10000,
         method: "POST",
-        body: JSON.stringify(form),
       });
 
       if (response) {
         localStorage.setItem("userInfo", JSON.stringify(response.data));
-        console.log(response.data.token);
         navigate("/chats");
       } else {
         throw new Error("Network response was not ok");
       }
       setloading(false);
-      console.log(response);
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
       setloading(false);

@@ -31,7 +31,6 @@ const MyChats = ({ fetchAgain }) => {
   const toast = useToast();
 
   const fetchChats = async () => {
-    console.log(user.token);
     try {
       const config = {
         headers: {
@@ -41,7 +40,7 @@ const MyChats = ({ fetchAgain }) => {
       };
 
       const { data } = await axios.get(
-        "http://localhost:8000/api/chat",
+        `${process.env.REACT_APP_API_ENDPOINT}/api/chat`,
         config
       );
       setChats(data);
@@ -63,8 +62,6 @@ const MyChats = ({ fetchAgain }) => {
     // eslint-disable-next-line
   }, [fetchAgain]);
 
-  console.log(notification);
-  console.log(chats);
   const handleUnreadCount = (chatId) => {
     let count = 0; // Initialize count
 

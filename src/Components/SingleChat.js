@@ -25,7 +25,6 @@ import { IoMdSend } from "react-icons/io"; // Send Icon
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import UpdateGroupChatModal from "../miscellaneous/UpdateGroupModel";
 import { ChatState } from "../Context/ChatProvider";
-const ENDPOINT = "http://localhost:8000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -61,7 +60,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(true);
 
       const { data } = await axios.get(
-        `http://localhost:8000/api/message/${selectedChat._id}`,
+        `${process.env.REACT_APP_API_ENDPOINT}/api/message/${selectedChat._id}`,
         config
       );
       setMessages(data);
@@ -92,7 +91,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         };
         setNewMessage("");
         const { data } = await axios.post(
-          "http://localhost:8000/api/message",
+          `${process.env.REACT_APP_API_ENDPOINT}/api/message`,
           {
             content: newMessage,
             chatId: selectedChat,
@@ -115,7 +114,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   useEffect(() => {
-    socket = io(ENDPOINT);
+    socket = io(process.env.REACT_APP_API_ENDPOINT);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
@@ -130,25 +129,19 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     selectedChatCompare = selectedChat;
     // eslint-disable-next-line
   }, [selectedChat]);
-  console.log(selectedChatCompare);
+
   useEffect(() => {
-    console.log(socket);
     socket.on("message_recieved", (newMessageRecieved) => {
-      console.log("........", newMessageRecieved);
       if (
         !selectedChatCompare || // if chat is not selected or doesn't match current chat
         selectedChatCompare._id !== newMessageRecieved.chat._id ||
         selectedChatCompare === null
       ) {
-        console.log(selectedChatCompare, newMessageRecieved);
         if (!notification.includes(newMessageRecieved)) {
-          console.log("chat set ", notification);
           setNotification([newMessageRecieved, ...notification]);
-          console.log("after set");
           setFetchAgain(!fetchAgain);
         }
       } else {
-        console.log("error");
         setMessages([...messages, newMessageRecieved]);
       }
     });
