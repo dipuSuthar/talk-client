@@ -11,7 +11,7 @@ import {
   InputLeftAddon,
   InputRightAddon,
 } from "@chakra-ui/react";
-import { getSender, getSenderFull } from "../Config/ChatLogics";
+import { getSender, getSenderFull } from "../config/ChatLogics";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ArrowBackIcon } from "@chakra-ui/icons";
