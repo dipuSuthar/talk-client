@@ -12,7 +12,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import ChatLoading from "./ChatLoading";
 import { ChatState } from "../Context/ChatProvider";
-import { getSender } from "../config/ChatLogics";
+import { getSender } from "../Configuration/ChatLogics";
 import GroupChatModal from "../miscellaneous/GroupChatModel";
 
 const MyChats = ({ fetchAgain }) => {
