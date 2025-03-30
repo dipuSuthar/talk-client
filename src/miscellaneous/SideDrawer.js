@@ -28,7 +28,6 @@ import { useState } from "react";
 import axios from "axios";
 import ChatLoading from "../Components/ChatLoading";
 import ProfileModal from "./Profile";
-import { getSender } from "../Config/ChatLogics";
 import UserListItem from "../Components/UserAvatar/UserListItem";
 import { ChatState } from "../Context/ChatProvider";
 
