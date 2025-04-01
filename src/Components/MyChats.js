@@ -41,7 +41,7 @@ const MyChats = ({ fetchAgain }) => {
       };
 
       const { data } = await axios.get(
-        "http://localhost:8000/api/chat",
+        `${process.env.REACT_APP_API_ENDPOINT}/api/chat`,
         config
       );
       setChats(data);
