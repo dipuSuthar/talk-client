@@ -12,7 +12,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import ChatLoading from "./ChatLoading";
 import { ChatState } from "../Context/ChatProvider";
-import { getSender } from "../Configuration/ChatLogics";
+import { getSender } from "../config/ChatLogics";
 import GroupChatModal from "../miscellaneous/GroupChatModel";
 
 const MyChats = ({ fetchAgain }) => {
@@ -31,6 +31,7 @@ const MyChats = ({ fetchAgain }) => {
   const toast = useToast();
 
   const fetchChats = async () => {
+    console.log(user.token);
     try {
       const config = {
         headers: {
@@ -40,7 +41,7 @@ const MyChats = ({ fetchAgain }) => {
       };
 
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API_ENDPOINT}/api/chat`,
+        "http://localhost:8000/api/chat",
         config
       );
       setChats(data);
@@ -62,6 +63,8 @@ const MyChats = ({ fetchAgain }) => {
     // eslint-disable-next-line
   }, [fetchAgain]);
 
+  console.log(notification);
+  console.log(chats);
   const handleUnreadCount = (chatId) => {
     let count = 0; // Initialize count
 
@@ -77,7 +80,7 @@ const MyChats = ({ fetchAgain }) => {
   return (
     <Box
       style={{
-        // display: selectedChat ? "none" : "flex", // Default for base (mobile)
+        display: selectedChat && window.innerWidth <= 768 ? "none" : "flex", // Default for base (mobile)
         flexDirection: "column",
         alignItems: "center",
         padding: "12px",
@@ -85,6 +88,7 @@ const MyChats = ({ fetchAgain }) => {
         width: window.innerWidth >= 768 ? "31%" : "100%", // Mimics Chakra's `w={{ base: "100%", md: "31%" }}`
         borderRadius: "8px",
         borderWidth: "1px",
+        height: "100%",
       }}
     >
       <Box
@@ -97,9 +101,10 @@ const MyChats = ({ fetchAgain }) => {
         justifyContent="space-between"
         alignItems="center"
       >
-        My Chats
+        Chats
         <GroupChatModal>
           <Button
+            size="md"
             style={{
               display: "flex",
               float: "right",

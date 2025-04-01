@@ -50,6 +50,7 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         `${process.env.REACT_APP_API_ENDPOINT}/api/user?search=${search}`,
         config
       );
+      console.log(data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -76,13 +77,15 @@ const UpdateGroupChatModal = ({ fetchMessages, fetchAgain, setFetchAgain }) => {
         },
       };
       const { data } = await axios.put(
-        `/api/chat/rename`,
+        `${process.env.REACT_APP_API_ENDPOINT}/api/chat/rename`,
         {
           chatId: selectedChat._id,
           chatName: groupChatName,
         },
         config
       );
+
+      console.log(data._id);
       // setSelectedChat("");
       setSelectedChat(data);
       setFetchAgain(!fetchAgain);

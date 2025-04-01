@@ -48,11 +48,13 @@ const SignUp = () => {
 
       if (response) {
         localStorage.setItem("userInfo", JSON.stringify(response.data));
+        console.log(response.data.token);
         navigate("/chats");
       } else {
         throw new Error("Network response was not ok");
       }
       setloading(false);
+      console.log(response);
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
       setloading(false);

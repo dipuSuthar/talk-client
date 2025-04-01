@@ -11,8 +11,8 @@ import {
   InputLeftAddon,
   InputRightAddon,
 } from "@chakra-ui/react";
-import { getSender, getSenderFull } from "../Configuration/ChatLogics";
-import { useEffect, useState } from "react";
+import { getSender, getSenderFull } from "../config/ChatLogics";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import ProfileModal from "../miscellaneous/Profile";
@@ -25,6 +25,7 @@ import { IoMdSend } from "react-icons/io"; // Send Icon
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import UpdateGroupChatModal from "../miscellaneous/UpdateGroupModel";
 import { ChatState } from "../Context/ChatProvider";
+import TypingIndicator from "../animation/TypingIndicator";
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -36,6 +37,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
   const [showPicker, setShowPicker] = useState(false);
+  const pickerRef = useRef(null);
   const defaultOptions = {
     loop: true,
     autoplay: true,
@@ -117,8 +119,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket = io(process.env.REACT_APP_API_ENDPOINT);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stop typing", () => setIsTyping(false));
+    socket.on("typing", (senderId) => {
+      if (senderId !== user._id) {
+        setIsTyping(true);
+      }
+    });
+
+    socket.on("stop typing", (senderId) => {
+      if (senderId !== user._id) {
+        setIsTyping(false);
+      }
+    });
 
     // eslint-disable-next-line
   }, []);
@@ -131,49 +142,72 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
+    console.log(socket);
     socket.on("message_recieved", (newMessageRecieved) => {
+      console.log("........", newMessageRecieved);
       if (
         !selectedChatCompare || // if chat is not selected or doesn't match current chat
         selectedChatCompare._id !== newMessageRecieved.chat._id ||
         selectedChatCompare === null
       ) {
+        console.log(selectedChatCompare, newMessageRecieved);
         if (!notification.includes(newMessageRecieved)) {
+          console.log("chat set ", notification);
           setNotification([newMessageRecieved, ...notification]);
+          console.log("after set");
           setFetchAgain(!fetchAgain);
         }
       } else {
+        console.log("error");
         setMessages([...messages, newMessageRecieved]);
       }
     });
   });
 
   const typingHandler = (e) => {
-    if (e.emoji) {
-      // Append emoji to the existing message
-      setNewMessage((prev) => prev + e.emoji);
-    } else {
-      // Replace text input (do NOT append previous message)
-      setNewMessage(e.target.value);
-    }
+    setNewMessage(e.target.value);
 
     if (!socketConnected) return;
 
     if (!typing) {
       setTyping(true);
-      socket.emit("typing", selectedChat._id);
+      socket.emit("typing", { chatId: selectedChat._id, senderId: user._id });
     }
+
     let lastTypingTime = new Date().getTime();
-    var timerLength = 3000;
+    let timerLength = 3000;
+
     setTimeout(() => {
-      var timeNow = new Date().getTime();
-      var timeDiff = timeNow - lastTypingTime;
+      let timeNow = new Date().getTime();
+      let timeDiff = timeNow - lastTypingTime;
       if (timeDiff >= timerLength && typing) {
-        socket.emit("stop typing", selectedChat._id);
+        socket.emit("stop typing", {
+          chatId: selectedChat._id,
+          senderId: user._id,
+        });
         setTyping(false);
       }
     }, timerLength);
   };
 
+  const handleEmojiClick = (emoji) => {
+    setNewMessage((prev) => prev + emoji.emoji);
+  };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+        setShowPicker(false);
+      }
+    };
+
+    if (showPicker) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showPicker]);
   return (
     <>
       {selectedChat ? (
@@ -238,7 +272,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <ScrollableChat messages={messages} />
               </div>
             )}
-
             {/* <FormControl
               onKeyDown={sendMessage}
               id="first-name"
@@ -250,17 +283,10 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 }
               }
             > */}
-            {istyping ? (
-              <div>
-                <Lottie
-                  options={defaultOptions}
-                  // height={50}
-                  width={70}
-                  style={{ marginBottom: 15, marginLeft: 0 }}
-                />
-              </div>
-            ) : (
-              <></>
+            {istyping && (
+              <Box style={{ maxWidth: "100%" }}>
+                <TypingIndicator />
+              </Box>
             )}
             <InputGroup
               boxShadow="md"
@@ -274,7 +300,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <IconButton
                   aria-label="Open Emoji Picker"
                   icon={<MdOutlineEmojiEmotions />}
-                  onClick={() => setShowPicker((prev) => !prev)}
+                  onClick={() => setShowPicker((prev) => !prev)} // Toggle on click
                   size="md"
                   variant="ghost"
                   color="gray.500"
@@ -306,21 +332,36 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 />
               </InputRightAddon>
             </InputGroup>
-
             {showPicker && (
-              <div style={{ position: "absolute", bottom: "50px", left: "0" }}>
+              <Box
+                ref={pickerRef}
+                position="absolute"
+                bottom="120px"
+                left="500px"
+                zIndex="1000"
+                bg="white"
+                borderRadius="md"
+                boxShadow="lg"
+              >
                 <EmojiPicker
-                  reactionsDefaultOpen={true}
+                  reactionsDefaultOpen={!showPicker}
                   onReactionClick={typingHandler}
+                  onEmojiClick={handleEmojiClick}
                 />
-              </div>
+              </Box>
             )}
             {/* </FormControl> */}
           </Box>
         </>
       ) : (
         // to get socket.io on same page
-        <Box d="flex" alignItems="center" justifyContent="center" h="100%">
+        <Box
+          d="flex"
+          alignItems="center"
+          justifyContent="center"
+          h="100%"
+          display={selectedChat ? "none" : "flex"}
+        >
           <Text fontSize="3xl" pb={3} fontFamily="Work sans">
             Click on a user to start chatting
           </Text>

@@ -28,6 +28,7 @@ import { useState } from "react";
 import axios from "axios";
 import ChatLoading from "../Components/ChatLoading";
 import ProfileModal from "./Profile";
+import { getSender } from "../config/ChatLogics";
 import UserListItem from "../Components/UserAvatar/UserListItem";
 import { ChatState } from "../Context/ChatProvider";
 
@@ -45,6 +46,7 @@ function SideDrawer() {
     chats,
     setChats,
   } = ChatState();
+  console.log("new notification", notification);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const history = useNavigate();
@@ -79,7 +81,7 @@ function SideDrawer() {
         `${process.env.REACT_APP_API_ENDPOINT}/api/user?search=${search}`,
         config
       );
-
+      console.log(data);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -95,6 +97,8 @@ function SideDrawer() {
   };
 
   const accessChat = async (userId) => {
+    console.log(userId);
+
     try {
       setLoadingChat(true);
       const config = {
@@ -124,6 +128,7 @@ function SideDrawer() {
       });
     }
   };
+  console.log(notification.length);
   return (
     <>
       <Box
@@ -138,7 +143,13 @@ function SideDrawer() {
         }}
       >
         <Tooltip label="Search Users to chat" hasArrow placement="bottom-end">
-          <Button variant="ghost" onClick={onOpen}>
+          <Button
+            variant="ghost"
+            style={{
+              backgroundColor: "#38b2ac",
+            }}
+            onClick={onOpen}
+          >
             <i className="fas fa-search"></i>
             <Text d={{ base: "none", md: "flex" }} px={4}>
               Search User

@@ -33,6 +33,7 @@ const Login = () => {
         localStorage.setItem("userInfo", JSON.stringify(response.data));
         window.location.href = "/chats";
       }
+      console.log(response.data);
     } catch (error) {
       // Handle errors here
       console.error("There was an error with the login request", error);
