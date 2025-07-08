@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   Button,
   FormControl,
@@ -8,13 +8,19 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import CustomizedSnackbars from "../../config/Alert";
+import { GetAuthorizedApi } from "../../config/GenericApi";
 
 const Login = () => {
   const [Email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setshowPassword] = useState(false);
+  const muiRef = useRef(null);
+  const [alert, setAlert] = React.useState({
+    severity: "",
+    message: "",
+  });
   const HandleLogin = async () => {
     try {
       const data = {
@@ -23,24 +29,40 @@ const Login = () => {
       };
 
       const path = `${process.env.REACT_APP_API_ENDPOINT}/api/user/login`;
-
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      const response = await axios.post(path, data, { headers });
+      // const response = await axios.post(path, data, { headers });
+      const response = await GetAuthorizedApi(path, data);
+      console.log("response.data:", response); // Should show your user object
+      console.log("Token:", response.token);
       if (response) {
-        localStorage.setItem("userInfo", JSON.stringify(response.data));
+        setAlert({
+          ...alert,
+          severity: "success",
+          message: "Login Successfully",
+        });
+        muiRef.current.handleClick();
+        sessionStorage.setItem("userInfo", JSON.stringify(response));
+        sessionStorage.setItem("key", response.token);
         window.location.href = "/chats";
       }
-      console.log(response.data);
     } catch (error) {
+      console.log(error.message);
+      setAlert({
+        ...alert,
+        severity: "error",
+        message: error.message,
+      });
+      muiRef.current.handleClick();
       // Handle errors here
       console.error("There was an error with the login request", error);
     }
   };
   return (
     <>
+      <CustomizedSnackbars
+        ref={muiRef}
+        severity={alert.severity} // 'success' or 'error'
+        message={alert.message}
+      />
       <FormControl id="email" isRequired>
         <FormLabel>Email</FormLabel>
         <Input

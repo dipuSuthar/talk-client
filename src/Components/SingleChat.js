@@ -5,11 +5,10 @@ import {
   useToast,
   Box,
   Text,
-  FormControl,
-  Input,
   InputGroup,
   InputLeftAddon,
   InputRightAddon,
+  Input,
 } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../config/ChatLogics";
 import { useEffect, useState, useRef } from "react";
@@ -17,11 +16,10 @@ import axios from "axios";
 import { ArrowBackIcon } from "@chakra-ui/icons";
 import ProfileModal from "../miscellaneous/Profile";
 import ScrollableChat from "./ScrollableChat";
-import Lottie from "react-lottie";
-import animationData from "../animation/typing.json";
+// import { generateKeyPair, encryptMessage, decryptMessage } from "./secure";
 import EmojiPicker from "emoji-picker-react";
 import io from "socket.io-client";
-import { IoMdSend } from "react-icons/io"; // Send Icon
+import { IoMdSend } from "react-icons/io";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
 import UpdateGroupChatModal from "../miscellaneous/UpdateGroupModel";
 import { ChatState } from "../Context/ChatProvider";
@@ -38,14 +36,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const toast = useToast();
   const [showPicker, setShowPicker] = useState(false);
   const pickerRef = useRef(null);
-  const defaultOptions = {
-    loop: true,
-    autoplay: true,
-    animationData: animationData,
-    rendererSettings: {
-      preserveAspectRatio: "xMidYMid slice",
-    },
-  };
+  // const { publicKey, privateKey } = generateKeyPair();
+
+  // Store securely
+  // localStorage.setItem("myPublicKey", publicKey);
+  // localStorage.setItem("myPrivateKey", privateKey);
   const { selectedChat, setSelectedChat, user, notification, setNotification } =
     ChatState();
 
@@ -71,7 +66,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the Messages",
         status: "error",
         duration: 5000,
@@ -104,7 +99,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setMessages([...messages, data]);
       } catch (error) {
         toast({
-          title: "Error Occured!",
+          title: "Error Occurred!",
           description: "Failed to send the Message",
           status: "error",
           duration: 5000,
@@ -142,7 +137,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    console.log(socket);
     socket.on("message_recieved", (newMessageRecieved) => {
       console.log("........", newMessageRecieved);
       if (
@@ -162,7 +156,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         setMessages([...messages, newMessageRecieved]);
       }
     });
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
@@ -256,7 +251,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               width: "100%",
               height: "90%",
               borderRadius: "8px",
-              // overflow: "auto",
             }}
           >
             {loading ? (
@@ -272,17 +266,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 <ScrollableChat messages={messages} />
               </div>
             )}
-            {/* <FormControl
-              onKeyDown={sendMessage}
-              id="first-name"
-              isRequired
-              mt={3}
-              style={
-                {
-                  // backgroundColor: "#fff",
-                }
-              }
-            > */}
             {istyping && (
               <Box style={{ maxWidth: "100%" }}>
                 <TypingIndicator />
@@ -295,12 +278,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               m={2}
               gap={1}
             >
-              {/* Emoji Picker Button */}
               <InputLeftAddon bg="transparent" border="none">
                 <IconButton
                   aria-label="Open Emoji Picker"
                   icon={<MdOutlineEmojiEmotions />}
-                  onClick={() => setShowPicker((prev) => !prev)} // Toggle on click
+                  onClick={() => setShowPicker((prev) => !prev)}
                   size="md"
                   variant="ghost"
                   color="gray.500"
@@ -350,21 +332,17 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 />
               </Box>
             )}
-            {/* </FormControl> */}
           </Box>
         </>
       ) : (
-        // to get socket.io on same page
         <Box
           d="flex"
           alignItems="center"
           justifyContent="center"
+          w="100%"
           h="100%"
-          display={selectedChat ? "none" : "flex"}
         >
-          <Text fontSize="3xl" pb={3} fontFamily="Work sans">
-            Click on a user to start chatting
-          </Text>
+          Select a Chat to start messaging
         </Box>
       )}
     </>

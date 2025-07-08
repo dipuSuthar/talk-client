@@ -52,7 +52,7 @@ function SideDrawer() {
   const history = useNavigate();
 
   const logoutHandler = () => {
-    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("userInfo");
     history("/");
   };
 
