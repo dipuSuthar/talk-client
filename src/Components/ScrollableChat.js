@@ -10,6 +10,24 @@ import { Avatar, Tooltip } from "@chakra-ui/react";
 
 const ScrollableChat = ({ messages }) => {
   const { user } = ChatState();
+  const renderMessage = (msg) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return msg.split(urlRegex).map((part, idx) =>
+      urlRegex.test(part) ? (
+        <a
+          key={idx}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "blue" }}
+        >
+          {part}
+        </a>
+      ) : (
+        part
+      )
+    );
+  };
 
   return (
     <ScrollableFeed>
@@ -42,7 +60,7 @@ const ScrollableChat = ({ messages }) => {
                 maxWidth: "75%",
               }}
             >
-              {m.content}
+              {renderMessage(m.content)}
             </span>
           </div>
         ))}

@@ -142,9 +142,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   }, [selectedChat]);
 
   useEffect(() => {
-    console.log(socket);
     socket.on("message_recieved", (newMessageRecieved) => {
-      console.log("........", newMessageRecieved);
       if (
         !selectedChatCompare || // if chat is not selected or doesn't match current chat
         selectedChatCompare._id !== newMessageRecieved.chat._id ||
@@ -158,7 +156,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           setFetchAgain(!fetchAgain);
         }
       } else {
-        console.log("error");
         setMessages([...messages, newMessageRecieved]);
       }
     });
@@ -296,7 +293,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               gap={1}
             >
               {/* Emoji Picker Button */}
-              <InputLeftAddon bg="transparent" border="none">
+              <InputLeftAddon
+                bg="transparent"
+                border="none"
+                sx={{
+                  display: { base: "none", md: "flex" },
+                }}
+              >
                 <IconButton
                   aria-label="Open Emoji Picker"
                   icon={<MdOutlineEmojiEmotions />}
