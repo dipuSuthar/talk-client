@@ -15,10 +15,10 @@ const ChatProvider = ({ children }) => {
   const history = useNavigate();
   localStorage.setItem("notification", JSON.stringify(notification));
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+    const userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
     setUser(userInfo);
 
-    if (!userInfo) history("/");
+    if (!userInfo) history("/");  
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history]);
   console.log(notification);
